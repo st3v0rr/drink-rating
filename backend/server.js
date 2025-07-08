@@ -15,6 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Admin-Konfiguration über Umgebungsvariablen
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const DB_PATH = process.env.DB_PATH || './drink_rating.db';
 
 // Middleware
 app.use(cors());
@@ -53,7 +54,7 @@ const upload = multer({
 });
 
 // Datenbank initialisieren
-const db = new sqlite3.Database('./drink_rating.db');
+const db = new sqlite3.Database(DB_PATH);
 
 // Tabellen erstellen
 db.serialize(() => {

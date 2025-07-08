@@ -49,7 +49,7 @@ const AdminLogin = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="card">
           <Link to="/" className="btn btn-secondary mb-3">← Zurück zur Startseite</Link>
 
@@ -92,12 +92,6 @@ const AdminLogin = () => {
               {loading ? 'Wird eingeloggt...' : 'Anmelden'}
             </button>
           </form>
-
-          <div className="mt-3 text-center">
-            <small className="text-muted">
-              Standard Login: admin / admin123
-            </small>
-          </div>
         </div>
       </div>
   );

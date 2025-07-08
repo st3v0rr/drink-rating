@@ -4,11 +4,10 @@ WORKDIR /app
 
 COPY backend/package*.json ./
 COPY backend/server.js ./
-COPY backend/uploads ./uploads
 COPY frontend/build ./public
-COPY backend/bin ./bin
 
 RUN npm install
+RUN mkdir uploads
 
 EXPOSE 3000
 
