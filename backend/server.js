@@ -322,3 +322,9 @@ app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server läuft auf Port ${PORT}`);
 });
+
+// Catch-all handler: Alle anderen Routen an die React App weiterleiten
+// WICHTIG: Diese Route muss nach allen API-Routen stehen!
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
