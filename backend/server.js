@@ -92,6 +92,20 @@ db.serialize(() => {
       console.log(`Standard Admin erstellt: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD}`);
     }
   });
+
+  // Migration: Update alte Upload-URLs zu neuen /api/uploads URLs
+  db.all("SELECT id, image_url FROM drinks WHERE image_url LIKE '/uploads/%'", (err, drinks) => {
+    if (err) return;
+    
+    drinks.forEach(drink => {
+      const newUrl = drink.image_url.replace('/uploads/', '/api/uploads/');
+      db.run("UPDATE drinks SET image_url = ? WHERE id = ?", [newUrl, drink.id], (updateErr) => {
+        if (!updateErr) {
+          console.log(`Migrated image URL for drink ${drink.id}: ${drink.image_url} -> ${newUrl}`);
+        }
+      });
+    });
+  });
 });
 
 // Middleware für Admin-Authentifizierung
@@ -154,7 +168,7 @@ app.get('/api/drinks/:id', (req, res) => {
 
 app.post('/api/drinks', authenticateAdmin, upload.single('image'), (req, res) => {
   const { name } = req.body;
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : null;
 
   db.run("INSERT INTO drinks (name, image_url) VALUES (?, ?)", [name, imageUrl], function(err) {
     if (err) {
@@ -177,7 +191,7 @@ app.put('/api/drinks/:id', authenticateAdmin, upload.single('image'), (req, res)
       return res.status(404).json({ message: 'Getränk nicht gefunden' });
     }
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : drink.image_url;
+    const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : drink.image_url;
 
     db.run("UPDATE drinks SET name = ?, image_url = ? WHERE id = ?", [name, imageUrl, id], (err) => {
       if (err) {
@@ -186,7 +200,7 @@ app.put('/api/drinks/:id', authenticateAdmin, upload.single('image'), (req, res)
 
       // Altes Bild löschen wenn neues hochgeladen wurde
       if (req.file && drink.image_url) {
-        const oldImagePath = path.join(__dirname, drink.image_url);
+        const oldImagePath = path.join(__dirname, drink.image_url.replace('/api', ''));
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
@@ -222,7 +236,7 @@ app.delete('/api/drinks/:id', authenticateAdmin, (req, res) => {
 
         // Bild löschen
         if (drink.image_url) {
-          const imagePath = path.join(__dirname, drink.image_url);
+          const imagePath = path.join(__dirname, drink.image_url.replace('/api', ''));
           if (fs.existsSync(imagePath)) {
             fs.unlinkSync(imagePath);
           }
