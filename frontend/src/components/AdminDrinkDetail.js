@@ -13,15 +13,6 @@ const AdminDrinkDetail = () => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/admin/login');
-      return;
-    }
-    fetchDrinkDetails();
-    fetchRatings();
-  }, [isAuthenticated, navigate, fetchDrinkDetails, fetchRatings]);
-
   const fetchDrinkDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/drinks/${id}`);
@@ -46,6 +37,15 @@ const AdminDrinkDetail = () => {
       console.error('Fehler beim Laden der Bewertungen:', err);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin/login');
+      return;
+    }
+    fetchDrinkDetails();
+    fetchRatings();
+  }, [isAuthenticated, navigate, fetchDrinkDetails, fetchRatings]);
 
   const renderStars = (rating) => {
     const stars = [];

@@ -11,14 +11,6 @@ const AdminDashboard = () => {
   const { isAuthenticated, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/admin/login');
-      return;
-    }
-    fetchDashboardData();
-  }, [isAuthenticated, navigate, fetchDashboardData]);
-
   const fetchDashboardData = useCallback(async () => {
     try {
       const response = await axios.get('/api/admin/dashboard', {
@@ -36,6 +28,14 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   }, [token, logout, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin/login');
+      return;
+    }
+    fetchDashboardData();
+  }, [isAuthenticated, navigate, fetchDashboardData]);
 
   const renderStars = (rating) => {
     const stars = [];

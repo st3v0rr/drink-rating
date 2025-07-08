@@ -13,11 +13,6 @@ const DrinkRating = () => {
   const [error, setError] = useState(null);
   const [ratings, setRatings] = useState([]);
 
-  useEffect(() => {
-    fetchDrink();
-    fetchRatings();
-  }, [fetchDrink, fetchRatings]);
-
   const fetchDrink = useCallback(async () => {
     try {
       const response = await axios.get(`/api/drinks/${id}`);
@@ -37,6 +32,11 @@ const DrinkRating = () => {
       console.error('Fehler beim Laden der Bewertungen:', err);
     }
   }, [id]);
+
+  useEffect(() => {
+    fetchDrink();
+    fetchRatings();
+  }, [fetchDrink, fetchRatings]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
