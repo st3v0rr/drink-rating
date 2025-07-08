@@ -1,0 +1,66 @@
+:root {
+  /* Farbvariablen basierend auf dem neuen Design */
+  --primary-blue: #2F2CF9;
+  --accent-blue: #8498F4;
+  --dark: #101C25;
+  --dark-80: #28333B;
+  --dark-50: #878D92;
+  --dark-20: #F8F9F9;
+  --red: #E16A6A;
+  --yellow: #FFCB1D;
+  --green: #90D033;
+
+  /* Zusätzliche Farben für bessere UX */
+  --white: #ffffff;
+  --shadow: rgba(16, 28, 37, 0.1);
+  --shadow-hover: rgba(16, 28, 37, 0.15);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--dark-20);
+  color: var(--dark);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+  background-color: var(--dark-20);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  color: var(--dark);
+}
+
+/* Scrollbar Styling für Webkit-Browser */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-20);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dark-50);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-80);
+}
+
+/* Selection Styling */
+::selection {
+  background-color: var(--accent-blue);
+  color: var(--white);
+}
+
+::-moz-selection {
+  background-color: var(--accent-blue);
+  color: var(--white);
+}
