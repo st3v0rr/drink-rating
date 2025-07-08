@@ -40,6 +40,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 // 1MB Limit
+  },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -79,7 +82,7 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     drink_id INTEGER NOT NULL,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-    comment TEXT,
+    comment TEXT CHECK (length(comment) <= 200),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (drink_id) REFERENCES drinks (id)
   )`);
@@ -91,20 +94,6 @@ db.serialize(() => {
       db.run("INSERT INTO admins (username, password) VALUES (?, ?)", [ADMIN_USERNAME, hashedPassword]);
       console.log(`Standard Admin erstellt: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD}`);
     }
-  });
-
-  // Migration: Update alte Upload-URLs zu neuen /api/uploads URLs
-  db.all("SELECT id, image_url FROM drinks WHERE image_url LIKE '/uploads/%'", (err, drinks) => {
-    if (err) return;
-    
-    drinks.forEach(drink => {
-      const newUrl = drink.image_url.replace('/uploads/', '/api/uploads/');
-      db.run("UPDATE drinks SET image_url = ? WHERE id = ?", [newUrl, drink.id], (updateErr) => {
-        if (!updateErr) {
-          console.log(`Migrated image URL for drink ${drink.id}: ${drink.image_url} -> ${newUrl}`);
-        }
-      });
-    });
   });
 });
 
@@ -166,47 +155,65 @@ app.get('/api/drinks/:id', (req, res) => {
   });
 });
 
-app.post('/api/drinks', authenticateAdmin, upload.single('image'), (req, res) => {
-  const { name } = req.body;
-  const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : null;
-
-  db.run("INSERT INTO drinks (name, image_url) VALUES (?, ?)", [name, imageUrl], function(err) {
+app.post('/api/drinks', authenticateAdmin, (req, res) => {
+  upload.single('image')(req, res, (err) => {
     if (err) {
-      return res.status(500).json({ message: 'Datenbankfehler' });
-    }
-    res.json({ id: this.lastID, name, image_url: imageUrl, message: 'Getränk erstellt' });
-  });
-});
-
-app.put('/api/drinks/:id', authenticateAdmin, upload.single('image'), (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-
-  // Erst das aktuelle Getränk holen
-  db.get("SELECT * FROM drinks WHERE id = ?", [id], (err, drink) => {
-    if (err) {
-      return res.status(500).json({ message: 'Datenbankfehler' });
-    }
-    if (!drink) {
-      return res.status(404).json({ message: 'Getränk nicht gefunden' });
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ message: 'Datei ist zu groß. Maximum: 1MB' });
+      }
+      return res.status(400).json({ message: err.message });
     }
 
-    const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : drink.image_url;
+    const { name } = req.body;
+    const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : null;
 
-    db.run("UPDATE drinks SET name = ?, image_url = ? WHERE id = ?", [name, imageUrl, id], (err) => {
+    db.run("INSERT INTO drinks (name, image_url) VALUES (?, ?)", [name, imageUrl], function(err) {
       if (err) {
         return res.status(500).json({ message: 'Datenbankfehler' });
       }
+      res.json({ id: this.lastID, name, image_url: imageUrl, message: 'Getränk erstellt' });
+    });
+  });
+});
 
-      // Altes Bild löschen wenn neues hochgeladen wurde
-      if (req.file && drink.image_url) {
-        const oldImagePath = path.join(__dirname, drink.image_url.replace('/api', ''));
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
+app.put('/api/drinks/:id', authenticateAdmin, (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ message: 'Datei ist zu groß. Maximum: 1MB' });
+      }
+      return res.status(400).json({ message: err.message });
+    }
+
+    const { id } = req.params;
+    const { name } = req.body;
+
+    // Erst das aktuelle Getränk holen
+    db.get("SELECT * FROM drinks WHERE id = ?", [id], (err, drink) => {
+      if (err) {
+        return res.status(500).json({ message: 'Datenbankfehler' });
+      }
+      if (!drink) {
+        return res.status(404).json({ message: 'Getränk nicht gefunden' });
       }
 
-      res.json({ id, name, image_url: imageUrl, message: 'Getränk aktualisiert' });
+      const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : drink.image_url;
+
+      db.run("UPDATE drinks SET name = ?, image_url = ? WHERE id = ?", [name, imageUrl, id], (err) => {
+        if (err) {
+          return res.status(500).json({ message: 'Datenbankfehler' });
+        }
+
+        // Altes Bild löschen wenn neues hochgeladen wurde
+        if (req.file && drink.image_url) {
+          const oldImagePath = path.join(__dirname, drink.image_url.replace('/api', ''));
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+
+        res.json({ id, name, image_url: imageUrl, message: 'Getränk aktualisiert' });
+      });
     });
   });
 });
@@ -254,6 +261,11 @@ app.post('/api/ratings', (req, res) => {
 
   if (!drink_id || !rating || rating < 1 || rating > 5) {
     return res.status(400).json({ message: 'Ungültige Bewertungsdaten' });
+  }
+
+  // Kommentar-Längen-Validierung
+  if (comment && comment.length > 200) {
+    return res.status(400).json({ message: 'Kommentar darf maximal 200 Zeichen lang sein' });
   }
 
   db.run("INSERT INTO ratings (drink_id, rating, comment) VALUES (?, ?, ?)",
