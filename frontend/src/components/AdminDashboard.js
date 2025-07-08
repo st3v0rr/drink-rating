@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -17,9 +17,9 @@ const AdminDashboard = () => {
       return;
     }
     fetchDashboardData();
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, fetchDashboardData]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const response = await axios.get('/api/admin/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, logout, navigate]);
 
   const renderStars = (rating) => {
     const stars = [];

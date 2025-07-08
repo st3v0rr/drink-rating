@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -10,7 +10,7 @@ const AdminDrinkDetail = () => {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isAuthenticated, token, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,9 +20,9 @@ const AdminDrinkDetail = () => {
     }
     fetchDrinkDetails();
     fetchRatings();
-  }, [id, isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, fetchDrinkDetails, fetchRatings]);
 
-  const fetchDrinkDetails = async () => {
+  const fetchDrinkDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/drinks/${id}`);
       setDrink(response.data);
@@ -36,16 +36,16 @@ const AdminDrinkDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, logout, navigate]);
 
-  const fetchRatings = async () => {
+  const fetchRatings = useCallback(async () => {
     try {
       const response = await axios.get(`/api/ratings/${id}`);
       setRatings(response.data);
     } catch (err) {
       console.error('Fehler beim Laden der Bewertungen:', err);
     }
-  };
+  }, [id]);
 
   const renderStars = (rating) => {
     const stars = [];

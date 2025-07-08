@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,9 +16,9 @@ const DrinkRating = () => {
   useEffect(() => {
     fetchDrink();
     fetchRatings();
-  }, [id]);
+  }, [fetchDrink, fetchRatings]);
 
-  const fetchDrink = async () => {
+  const fetchDrink = useCallback(async () => {
     try {
       const response = await axios.get(`/api/drinks/${id}`);
       setDrink(response.data);
@@ -27,16 +27,16 @@ const DrinkRating = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const fetchRatings = async () => {
+  const fetchRatings = useCallback(async () => {
     try {
       const response = await axios.get(`/api/ratings/${id}`);
       setRatings(response.data);
     } catch (err) {
       console.error('Fehler beim Laden der Bewertungen:', err);
     }
-  };
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
