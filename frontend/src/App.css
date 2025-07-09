@@ -332,16 +332,32 @@ textarea.form-control {
   overflow: hidden;
   box-shadow: 0 4px 12px var(--shadow);
   transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
   border: 1px solid var(--dark-20);
   text-decoration: none;
   color: inherit;
+  display: block;
 }
 
-.drink-card:hover {
+/* Hover nur für Links, nicht für Cards mit Buttons */
+.drink-card.clickable {
+  cursor: pointer;
+}
+
+.drink-card.clickable:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px var(--shadow-hover);
   border-color: var(--accent-blue);
+}
+
+/* Admin Cards ohne störende Hover-Effekte */
+.drink-card.admin-card {
+  cursor: default;
+}
+
+.drink-card.admin-card:hover {
+  transform: none;
+  box-shadow: 0 4px 12px var(--shadow);
+  border-color: var(--dark-20);
 }
 
 .drink-image {
@@ -369,6 +385,8 @@ textarea.form-control {
   align-items: center;
   color: var(--dark-50);
   font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* Bewertung */
@@ -488,8 +506,8 @@ textarea.form-control {
   }
 
   .drinks-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .dashboard-stats {
@@ -544,6 +562,102 @@ textarea.form-control {
 
   .admin-rating-actions {
     align-self: flex-end;
+  }
+
+  /* Mobile Admin Cards */
+  .drink-card {
+    border-radius: 8px;
+  }
+
+  .drink-info {
+    padding: 1rem;
+  }
+
+  .drink-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .drink-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .rating-stars {
+    margin: 0.5rem 0;
+  }
+
+  .rating-stars .star {
+    font-size: 1.5rem;
+  }
+
+  /* Mobile Buttons in Cards */
+  .drink-stats .btn,
+  .drink-stats .d-flex {
+    width: 100%;
+  }
+
+  .drink-stats .d-flex .btn {
+    flex: 1;
+    margin-bottom: 0;
+    margin-right: 0.5rem;
+  }
+
+  .drink-stats .d-flex .btn:last-child {
+    margin-right: 0;
+  }
+
+  /* Container optimierung für Mobile */
+  .container {
+    padding: 0 10px;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+
+  .admin-actions {
+    width: 100%;
+  }
+
+  .admin-actions .btn {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* Form-Optimierung für Mobile */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    padding: 0.75rem;
+    font-size: 16px; /* Verhindert Zoom auf iOS */
+  }
+
+  /* Button-Gruppen */
+  .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -675,9 +789,43 @@ textarea.form-control {
 
 /* Enhanced hover effects */
 .btn:hover,
-.card:hover,
-.drink-card:hover {
+.card:hover {
   transition: all 0.3s ease;
+}
+
+/* Spezielle Behandlung für Admin Cards - kein Card Hover */
+.drink-card.admin-card:hover {
+  transform: none;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+/* Focus styles for accessibility */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Admin-spezifische Styles */
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Rating-Sterne für Admin-Bereiche */
+.admin-card .rating-stars {
+  margin: 0.25rem 0;
+}
+
+.admin-card .rating-stars .star {
+  font-size: 1.2rem;
+}
+
+.admin-card .drink-stats small {
+  display: block;
+  margin-top: 0.25rem;
+  line-height: 1.3;
 }
 
 /* Focus styles for accessibility */

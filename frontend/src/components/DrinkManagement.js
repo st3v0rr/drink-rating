@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import Logo from './Logo';
+import { getImageUrl } from '../utils/imageHelper';
 
 const DrinkManagement = () => {
   const [drinks, setDrinks] = useState([]);
@@ -149,12 +150,14 @@ const DrinkManagement = () => {
         <div className="card">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h2 className="card-title">Getränke-Liste</h2>
-            <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="btn btn-primary"
-            >
-              {showAddForm ? 'Abbrechen' : 'Neues Getränk hinzufügen'}
-            </button>
+            <div className="admin-actions">
+              <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="btn btn-primary"
+              >
+                {showAddForm ? 'Abbrechen' : 'Neues Getränk hinzufügen'}
+              </button>
+            </div>
           </div>
 
           {showAddForm && (
@@ -214,10 +217,10 @@ const DrinkManagement = () => {
           ) : (
               <div className="drinks-grid">
                 {drinks.map(drink => (
-                    <div key={drink.id} className="drink-card">
+                    <div key={drink.id} className="drink-card admin-card">
                       {drink.image_url && (
                           <img
-                              src={drink.image_url}
+                              src={getImageUrl(drink.image_url)}
                               alt={drink.name}
                               className="drink-image"
                           />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Logo from './Logo';
+import { getImageUrl } from '../utils/imageHelper';
 
 const Home = () => {
   const [drinks, setDrinks] = useState([]);
@@ -59,10 +60,10 @@ const Home = () => {
               </div>
           ) : (
               drinks.map(drink => (
-                  <Link key={drink.id} to={`/drink/${drink.id}`} className="drink-card">
+                  <Link key={drink.id} to={`/drink/${drink.id}`} className="drink-card clickable">
                     {drink.image_url && (
                         <img
-                            src={drink.image_url}
+                            src={getImageUrl(drink.image_url)}
                             alt={drink.name}
                             className="drink-image"
                         />

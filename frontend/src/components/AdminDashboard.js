@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import Logo from './Logo';
+import { getImageUrl } from '../utils/imageHelper';
 
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -121,10 +122,10 @@ const AdminDashboard = () => {
           ) : (
               <div className="drinks-grid">
                 {dashboardData?.drinks?.map(drink => (
-                    <div key={drink.id} className="drink-card">
+                    <div key={drink.id} className="drink-card admin-card">
                       {drink.image_url && (
                           <img
-                              src={drink.image_url}
+                              src={getImageUrl(drink.image_url)}
                               alt={drink.name}
                               className="drink-image"
                           />
