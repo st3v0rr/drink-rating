@@ -150,14 +150,16 @@ const DrinkManagement = () => {
         <div className="card">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h2 className="card-title">Getränke-Liste</h2>
-            <div className="admin-actions">
-              <button
-                  onClick={() => setShowAddForm(!showAddForm)}
-                  className="btn btn-primary"
-              >
-                {showAddForm ? 'Abbrechen' : 'Neues Getränk hinzufügen'}
-              </button>
-            </div>
+            {!showAddForm && (
+              <div className="admin-actions">
+                <button
+                    onClick={() => setShowAddForm(true)}
+                    className="btn btn-primary"
+                >
+                  Neues Getränk hinzufügen
+                </button>
+              </div>
+            )}
           </div>
 
           {showAddForm && (
@@ -192,7 +194,7 @@ const DrinkManagement = () => {
                   <div className="d-flex gap-2">
                     <button
                         type="submit"
-                        className="btn btn-success"
+                        className="btn btn-primary"
                         disabled={submitting}
                     >
                       {submitting ? 'Wird gespeichert...' : editingDrink ? 'Aktualisieren' : 'Hinzufügen'}

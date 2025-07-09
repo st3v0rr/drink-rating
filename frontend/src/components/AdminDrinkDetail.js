@@ -248,53 +248,42 @@ const AdminDrinkDetail = () => {
           <div>
             {ratings.map((rating, index) => (
               <div key={rating.id} style={{
-                borderBottom: index < ratings.length - 1 ? '1px solid #e0e0e0' : 'none',
-                paddingBottom: '1rem',
-                marginBottom: '1rem'
+                backgroundColor: '#ffffff',
+                border: '1px solid #e9ecef',
+                borderRadius: '8px',
+                padding: '1rem',
+                marginBottom: '1rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
               }}>
-                <div className="admin-rating-item" style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '0.5rem'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div className="rating-stars">
-                      {renderStars(rating.rating)}
-                    </div>
-                    <small className="text-muted">
-                      {formatDate(rating.created_at)}
-                    </small>
-                  </div>
-
-                  <div className="admin-rating-actions">
-                    <button
-                      onClick={() => handleDeleteRating(rating.id)}
-                      disabled={deletingRating === rating.id}
-                      className="btn btn-danger"
-                      style={{
-                        fontSize: '0.8rem',
-                        padding: '0.5rem 1rem',
-                        marginLeft: '1rem',
-                        minWidth: 'auto'
-                      }}
-                      title="Bewertung löschen"
-                    >
-                      {deletingRating === rating.id ? 'Wird gelöscht...' : '🗑️ Löschen'}
-                    </button>
-                  </div>
+                <div className="rating-stars">
+                  {renderStars(rating.rating)}
                 </div>
-
+                <small className="text-muted">
+                  {formatDate(rating.created_at)}
+                </small>
+                
                 {rating.comment && (
                   <div style={{
                     backgroundColor: '#f8f9fa',
                     padding: '0.75rem',
                     borderRadius: '5px',
-                    marginTop: '0.5rem'
+                    marginTop: '0.5rem',
+                    marginBottom: '0.5rem'
                   }}>
                     <p style={{ margin: 0 }}>{rating.comment}</p>
                   </div>
                 )}
+
+                <div className="d-flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleDeleteRating(rating.id)}
+                    disabled={deletingRating === rating.id}
+                    className="btn btn-danger"
+                    style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}
+                  >
+                    {deletingRating === rating.id ? 'Wird gelöscht...' : 'Löschen'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
