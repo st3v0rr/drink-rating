@@ -10,7 +10,9 @@ const AdminDrinkDetail = () => {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isAuthenticated, logout } = useAuth();
+  const [success, setSuccess] = useState(null);
+  const [deletingRating, setDeletingRating] = useState(null);
+  const { isAuthenticated, token, logout } = useAuth();
   const navigate = useNavigate();
 
   const fetchDrinkDetails = useCallback(async () => {
@@ -70,6 +72,34 @@ const AdminDrinkDetail = () => {
     return (sum / ratings.length).toFixed(1);
   };
 
+  const handleDeleteRating = async (ratingId) => {
+    if (!window.confirm('Möchtest du diese Bewertung wirklich löschen?')) {
+      return;
+    }
+
+    setDeletingRating(ratingId);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await axios.delete(`/api/ratings/${ratingId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setSuccess('Bewertung erfolgreich gelöscht');
+      fetchRatings(); // Bewertungen neu laden
+    } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+        navigate('/admin/login');
+      } else {
+        setError('Fehler beim Löschen der Bewertung');
+      }
+    } finally {
+      setDeletingRating(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('de-DE', {
@@ -127,6 +157,9 @@ const AdminDrinkDetail = () => {
         </div>
       </div>
 
+      {error && <div className="message error">{error}</div>}
+      {success && <div className="message success">{success}</div>}
+
       {/* Getränke-Information */}
       <div className="card">
         <Link to="/admin/dashboard" className="btn btn-secondary mb-3">← Zurück zum Dashboard</Link>
@@ -169,7 +202,9 @@ const AdminDrinkDetail = () => {
               {/* Bewertungsverteilung */}
               {totalRatings > 0 && (
                 <div className="rating-distribution">
-                  <h4>Bewertungsverteilung</h4>
+                  <div style={{ fontSize: '1.2rem', margin: '0.5rem 0', marginBottom: '20px' }}>
+                    <strong>Bewertungsverteilung</strong>
+                  </div>
                   {[5, 4, 3, 2, 1].map(stars => (
                     <div key={stars} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
                       <span style={{ width: '20px' }}>{stars}★</span>
@@ -217,13 +252,37 @@ const AdminDrinkDetail = () => {
                 paddingBottom: '1rem',
                 marginBottom: '1rem'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <div className="rating-stars">
-                    {renderStars(rating.rating)}
+                <div className="admin-rating-item" style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '0.5rem'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div className="rating-stars">
+                      {renderStars(rating.rating)}
+                    </div>
+                    <small className="text-muted">
+                      {formatDate(rating.created_at)}
+                    </small>
                   </div>
-                  <small className="text-muted">
-                    {formatDate(rating.created_at)}
-                  </small>
+
+                  <div className="admin-rating-actions">
+                    <button
+                      onClick={() => handleDeleteRating(rating.id)}
+                      disabled={deletingRating === rating.id}
+                      className="btn btn-danger"
+                      style={{
+                        fontSize: '0.8rem',
+                        padding: '0.5rem 1rem',
+                        marginLeft: '1rem',
+                        minWidth: 'auto'
+                      }}
+                      title="Bewertung löschen"
+                    >
+                      {deletingRating === rating.id ? 'Wird gelöscht...' : '🗑️ Löschen'}
+                    </button>
+                  </div>
                 </div>
 
                 {rating.comment && (

@@ -288,6 +288,29 @@ app.get('/api/ratings/:drinkId', (req, res) => {
   });
 });
 
+// Einzelne Bewertung löschen (Admin)
+app.delete('/api/ratings/:id', authenticateAdmin, (req, res) => {
+  const { id } = req.params;
+
+  // Erst prüfen ob die Bewertung existiert
+  db.get("SELECT * FROM ratings WHERE id = ?", [id], (err, rating) => {
+    if (err) {
+      return res.status(500).json({ message: 'Datenbankfehler' });
+    }
+    if (!rating) {
+      return res.status(404).json({ message: 'Bewertung nicht gefunden' });
+    }
+
+    // Bewertung löschen
+    db.run("DELETE FROM ratings WHERE id = ?", [id], (err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Datenbankfehler beim Löschen' });
+      }
+      res.json({ message: 'Bewertung erfolgreich gelöscht' });
+    });
+  });
+});
+
 // Dashboard Route
 app.get('/api/admin/dashboard', authenticateAdmin, (req, res) => {
   const query = `
