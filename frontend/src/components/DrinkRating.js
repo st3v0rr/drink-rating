@@ -6,6 +6,7 @@ const DrinkRating = () => {
   const { id } = useParams();
   const [drink, setDrink] = useState(null);
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -67,12 +68,19 @@ const DrinkRating = () => {
 
   const renderStars = (currentRating, isInteractive = false) => {
     const stars = [];
+    // Verwende hoverRating wenn gehövert wird, sonst currentRating
+    const displayRating = isInteractive && hoverRating > 0 ? hoverRating : currentRating;
+    
     for (let i = 1; i <= 5; i++) {
       stars.push(
           <span
               key={i}
-              className={`star ${i <= currentRating ? 'active' : ''}`}
-              onClick={isInteractive ? () => setRating(i) : undefined}
+              className={`star ${i <= displayRating ? 'active' : ''} ${isInteractive ? 'interactive' : ''}`}
+              onClick={isInteractive ? () => handleStarClick(i) : undefined}
+              onMouseEnter={isInteractive ? () => setHoverRating(i) : undefined}
+              onMouseLeave={isInteractive ? () => setHoverRating(0) : undefined}
+              onTouchStart={isInteractive ? () => setHoverRating(i) : undefined}
+              onTouchEnd={isInteractive ? () => setHoverRating(0) : undefined}
               style={{ cursor: isInteractive ? 'pointer' : 'default' }}
           >
           ★
@@ -80,6 +88,11 @@ const DrinkRating = () => {
       );
     }
     return stars;
+  };
+
+  const handleStarClick = (starRating) => {
+    setRating(starRating);
+    setHoverRating(0); // Reset hover nach dem Klick
   };
 
   const getAverageRating = () => {
